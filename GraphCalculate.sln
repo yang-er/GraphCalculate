@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateGraph", "CreateGraph\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DegreeCentrality", "DegreeCentrality\DegreeCentrality.vcxproj", "{B3865A86-6231-4B0F-BF23-26D565B492D8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EigenVectorCentrality", "EigenVectorCentrality\EigenVectorCentrality.vcxproj", "{7909C6CF-85E3-4170-8C5F-356684FA578C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -23,6 +25,14 @@ Global
 		{190AE674-A545-4FCD-B3BC-E5155FDD0908}.Release|x64.Build.0 = Release|x64
 		{190AE674-A545-4FCD-B3BC-E5155FDD0908}.Release|x86.ActiveCfg = Release|Win32
 		{190AE674-A545-4FCD-B3BC-E5155FDD0908}.Release|x86.Build.0 = Release|Win32
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Debug|x64.ActiveCfg = Debug|x64
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Debug|x64.Build.0 = Debug|x64
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Debug|x86.ActiveCfg = Debug|Win32
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Debug|x86.Build.0 = Debug|Win32
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Release|x64.ActiveCfg = Release|x64
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Release|x64.Build.0 = Release|x64
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Release|x86.ActiveCfg = Release|Win32
+		{7909C6CF-85E3-4170-8C5F-356684FA578C}.Release|x86.Build.0 = Release|Win32
 		{B3865A86-6231-4B0F-BF23-26D565B492D8}.Debug|x64.ActiveCfg = Debug|x64
 		{B3865A86-6231-4B0F-BF23-26D565B492D8}.Debug|x64.Build.0 = Debug|x64
 		{B3865A86-6231-4B0F-BF23-26D565B492D8}.Debug|x86.ActiveCfg = Debug|Win32

@@ -1,6 +1,4 @@
-﻿// CreateGraph.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
-//
-
+﻿#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <vector>
 #include <random>
@@ -17,8 +15,8 @@ bool random_walk(int depth, int deg)
 {
 	if (depth == 0 && number_tot < N)
 		return true;
-	int rands = Rand() % (100 + deg * 10 + depth);
-	return rands < 50;
+	int rands = Rand() % (100 + deg * 30 + depth);
+	return rands > 50;
 }
 
 void dfs(int current, int depth)
@@ -40,11 +38,12 @@ void dfs(int current, int depth)
 int main()
 {
 	Rand = mt19937(time(NULL));
-	cin >> N;
+	scanf("%d", &N);
 	ID.assign(N + 1, 0);
 	for (int i = 1; i <= N; i++)
 		ID[i] = i;
 	int QAQ = Rand() % ((Rand() + 100) % (N * 10));
+	QAQ = min(QAQ, 1000);
 	for (int i = 0; i < QAQ; i++)
 		random_shuffle(ID.begin()+1, ID.end());
 	number_tot = 1;
@@ -60,8 +59,9 @@ int main()
 		G[u].push_back(v);
 	}
 
+	printf("%d %d\n", N, N - 1 + M);
 	for (int u = 1; u <= N; u++)
 		for (auto v : G[u])
-			cout << ID[u] << " " << ID[v] << endl;
+			printf("%d %d\n", ID[u], ID[v]);
 	return 0;
 }
