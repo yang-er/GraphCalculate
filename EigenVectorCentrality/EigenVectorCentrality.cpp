@@ -10,12 +10,12 @@ inline int loc(int n, int i, int j)
 
 int main()
 {
-	freopen("1000.in", "r", stdin);
+	//freopen("1e4.in", "r", stdin);
 	int m, n, u, v;
 	scanf("%d %d", &n, &m);
 	double* src = new double[n * n];
-	double* tzxl = new double[n * n];
-	double* tzz = new double[n];
+	double* tzxl = new double[n];
+	double* tzz = new double;
 	memset(src, 0, sizeof(double) * n * n);
 
 	while (m--)
@@ -25,10 +25,10 @@ int main()
 		src[loc(n, v - 1, u - 1)] += 1.0;
 	}
 
-	JacbiCor(src, n, tzxl, tzz, 1e-6, 1000);
+	JacbiCor(src, n, tzxl, tzz, 5e-2, 10000);
 	printf("c = %lf\nv = [ ", tzz[0]);
 	for (int i = 0; i < n; i++)
-		printf("%.2lf ", tzxl[i * n]);
+		printf("%.2lf ", tzxl[i]);
 	printf("]\n");
 	return 0;
 }
