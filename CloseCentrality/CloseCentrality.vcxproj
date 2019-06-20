@@ -20,9 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{7909C6CF-85E3-4170-8C5F-356684FA578C}</ProjectGuid>
+    <ProjectGuid>{D4D7DB3C-5916-4814-9C11-DB26B7C03915}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>EigenVectorCentrality</RootNamespace>
+    <RootNamespace>CloseCentrality</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -91,9 +91,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <OpenMPSupport>true</OpenMPSupport>
-      <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,11 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="EigenVectorCentrality.cpp" />
-    <ClCompile Include="Jacobi.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Jacobi.h" />
+    <ClCompile Include="CloseCentrality.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,11 +1,13 @@
 #include "Jacobi.h"
 #include <cmath>
 #include <map>
+#include <omp.h>
 #include <algorithm>
 using namespace std;
 
-bool JacbiCor(double* pMatrix, int nDim, double* pdblVects, double* pdbEigenValues, double dbEps, int nJt)
+bool JacbiCor(double* pMatrix, int nDim, double* pdblVect, double* pdbEigenValue, double dbEps, int nJt)
 {
+	double* pdblVects = new double[1ll * nDim * nDim];
 	for (int i = 0; i < nDim; i++)
 		for (int j = 0; j < nDim; j++)
 			pdblVects[i * nDim + j] = i == j ? 1.0 : 0.0;
@@ -17,6 +19,7 @@ bool JacbiCor(double* pMatrix, int nDim, double* pdblVects, double* pdbEigenValu
 		double dbMax = pMatrix[1];
 		int nRow = 0;
 		int nCol = 1;
+
 		for (int i = 0; i < nDim; i++)			//行
 		{
 			for (int j = 0; j < nDim; j++)		//列
@@ -32,11 +35,20 @@ bool JacbiCor(double* pMatrix, int nDim, double* pdblVects, double* pdbEigenValu
 			}
 		}
 
-		if (dbMax < dbEps)     //精度符合要求 
+		if (dbMax < dbEps)
+		{
+			printf("epsilon achieved.\n");
+			printf("ncount = %d\n", nCount);
+			//精度符合要求 
 			break;
+		}
 
-		if (nCount > nJt)       //迭代次数超过限制
-			break;
+		if (nCount == nJt)
+		{
+			printf("ncount achieved.\n");
+			//迭代次数超过限制
+			//break;
+		}
 
 		nCount++;
 
@@ -58,77 +70,59 @@ bool JacbiCor(double* pMatrix, int nDim, double* pdblVects, double* pdbEigenValu
 		pMatrix[nRow * nDim + nCol] = 0.5 * (dbAqq - dbApp) * dbSin2Theta + dbApq * dbCos2Theta;
 		pMatrix[nCol * nDim + nRow] = pMatrix[nRow * nDim + nCol];
 
-		for (int i = 0; i < nDim; i++)
+		//#pragma omp parallel sections shared(nDim, nCol, nRow, dbSinTheta, dbCosTheta) num_threads(3)
 		{
-			if ((i != nCol) && (i != nRow))
+			//#pragma omp section
+			for (int i = 0; i < nDim; i++)
 			{
-				int u = i * nDim + nRow;	//p  
-				int w = i * nDim + nCol;	//q
-				dbMax = pMatrix[u];
-				pMatrix[u] = pMatrix[w] * dbSinTheta + dbMax * dbCosTheta;
-				pMatrix[w] = pMatrix[w] * dbCosTheta - dbMax * dbSinTheta;
+				if ((i != nCol) && (i != nRow))
+				{
+					int u = i * nDim + nRow;	//p  
+					int w = i * nDim + nCol;	//q
+					double dbMax = pMatrix[u];
+					pMatrix[u] = pMatrix[w] * dbSinTheta + dbMax * dbCosTheta;
+					pMatrix[w] = pMatrix[w] * dbCosTheta - dbMax * dbSinTheta;
+				}
 			}
-		}
 
-		for (int j = 0; j < nDim; j++)
-		{
-			if ((j != nCol) && (j != nRow))
-			{
-				int u = nRow * nDim + j;	//p
-				int w = nCol * nDim + j;	//q
-				dbMax = pMatrix[u];
-				pMatrix[u] = pMatrix[w] * dbSinTheta + dbMax * dbCosTheta;
-				pMatrix[w] = pMatrix[w] * dbCosTheta - dbMax * dbSinTheta;
-			}
-		}
-
-		//计算特征向量
-		for (int i = 0; i < nDim; i++)
-		{
-			int u = i * nDim + nRow;		//p   
-			int w = i * nDim + nCol;		//q
-			dbMax = pdblVects[u];
-			pdblVects[u] = pdblVects[w] * dbSinTheta + dbMax * dbCosTheta;
-			pdblVects[w] = pdblVects[w] * dbCosTheta - dbMax * dbSinTheta;
-		}
-
-	}
-
-	//对特征值进行排序以及重新排列特征向量,特征值即pMatrix主对角线上的元素
-	map<double, int> mapEigen;
-	for (int i = 0; i < nDim; i++)
-	{
-		pdbEigenValues[i] = pMatrix[i * nDim + i];
-		mapEigen[pdbEigenValues[i]] = i;
-	}
-
-	double* pdbTmpVec = new double[nDim * nDim];
-	auto iter = mapEigen.rbegin();
-	for (int j = 0; iter != mapEigen.rend(), j < nDim; ++iter, ++j)
-	{
-		for (int i = 0; i < nDim; i++)
-		{
-			pdbTmpVec[i * nDim + j] = pdblVects[i * nDim + iter->second];
-		}
-
-		//特征值重新排列
-		pdbEigenValues[j] = iter->first;
-	}
-
-	//设定正负号
-	for (int i = 0; i < nDim; i++)
-	{
-		double dSumVec = 0;
-		for (int j = 0; j < nDim; j++)
-			dSumVec += pdbTmpVec[j * nDim + i];
-		if (dSumVec< 0)
-		{
+			//#pragma omp section
 			for (int j = 0; j < nDim; j++)
-				pdbTmpVec[j * nDim + i] *= -1;
+			{
+				if ((j != nCol) && (j != nRow))
+				{
+					int u = nRow * nDim + j;	//p
+					int w = nCol * nDim + j;	//q
+					double dbMax = pMatrix[u];
+					pMatrix[u] = pMatrix[w] * dbSinTheta + dbMax * dbCosTheta;
+					pMatrix[w] = pMatrix[w] * dbCosTheta - dbMax * dbSinTheta;
+				}
+			}
+
+			//计算特征向量
+			//#pragma omp section
+			for (int i = 0; i < nDim; i++)
+			{
+				int u = i * nDim + nRow;		//p   
+				int w = i * nDim + nCol;		//q
+				double dbMax = pdblVects[u];
+				pdblVects[u] = pdblVects[w] * dbSinTheta + dbMax * dbCosTheta;
+				pdblVects[w] = pdblVects[w] * dbCosTheta - dbMax * dbSinTheta;
+			}
 		}
 	}
 
-	memcpy(pdblVects, pdbTmpVec, sizeof(double) * nDim * nDim);
-	delete[] pdbTmpVec;
+	int max_loc = 0; double max_ans = pMatrix[0], tot = 0;
+	for (int i = 1; i < nDim; i++)
+		if (pMatrix[i * nDim + i] > max_ans)
+			max_ans = pMatrix[i * nDim + i], max_loc = i;
+	*pdbEigenValue = max_ans;
+	for (int i = 0; i < nDim; i++)
+	{
+		pdblVect[i] = pdblVects[i * nDim + max_loc];
+		tot += pdblVect[i];
+	}
+
+	if (tot < 0) for (int i = 0; i < nDim; i++) pdblVect[i] *= -1;
+	delete[] pdblVects;
 	return 1;
 }
