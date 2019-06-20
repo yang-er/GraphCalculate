@@ -6,14 +6,15 @@
 #include <ctime>
 #include <cmath>
 using namespace std;
-const int MAXN = 1e6 + 6;
+const int MAXN = 1e6+6;
 vector<int> G[MAXN];
 int N, M;
-
-int duCenter()
+int* du;
+int MAX_POINT;
+void duCenter()
 {
-	int* du = new int[N + 1];
-	for (int i = 0; i < N + 1; i++)
+	du = new int[MAXN];
+	for (int i = 0; i < MAXN; i++)
 	{
 		du[i] = 0;
 	}
@@ -26,17 +27,55 @@ int duCenter()
 		}
 	}
 	//sort(du, du + N, [](int a, int b) { return a > b; });
-	int max = 0;
+	MAX_POINT = 0;
 	for (int i = 1; i <= N; i++)
 	{
 		cout << du[i] << " ";
-		if (du[i] > du[max])
-			max = i;
+		if (du[i] > du[MAX_POINT])
+			MAX_POINT = i;
 	}
-	cout << "MAX:" << du[max];
-	return max;
 }
+void addPoint()
+{
+	cout << "请输入要加入的点";
+	int point;
+	cin >> point;
 
+}
+void addEdge()
+{
+	cout << "请输入要加入的边 ?->?"<<endl;
+	int p1,p2;
+	cin >> p1 >> p2;
+	if (p1 == p2)
+	{
+		cout << "不能存在自环";
+		addEdge();
+	}
+	else
+	{
+		bool  f = false;
+		G[p1].push_back(p2);
+		if (++(du[p1]) > du[MAX_POINT])
+		{
+			f = true;
+			MAX_POINT = p1;
+		}
+		if (++(du[p2]) > du[MAX_POINT])
+		{
+			f = true;
+			MAX_POINT =  p2;
+		}
+		if (f)
+		{
+			cout<<"度中心性已经改变，MAX_DU:" << du[MAX_POINT] << "POINT:"<< MAX_POINT << endl;
+		}
+		else
+		{
+			cout << "度中心性未改变，MAX_DU:" << du[MAX_POINT] << "POINT:" << MAX_POINT << endl;
+		}
+	}
+}
 int main()
 {
 	scanf("%d %d", &N, &M);
@@ -47,18 +86,19 @@ int main()
 		scanf("%d %d", &u, &v);
 		G[u].push_back(v);
 	}
-
-	cout << "MAX_DU:" << duCenter() << endl;
+	duCenter();
+	cout << "MAX_DU:" << du[MAX_POINT] << "POINT:" << MAX_POINT << endl;
+	int chose;
+	while (true)
+	{
+		cout << "1-加边";
+		cin >> chose;
+		switch (chose)
+		{
+		case 1: addEdge(); break;
+		default:break;
+			break;
+		}
+	}
 	return 0;
 }
-
-// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
-// 调试程序: F5 或调试 >“开始调试”菜单
-
-// 入门使用技巧: 
-//   1. 使用解决方案资源管理器窗口添加/管理文件
-//   2. 使用团队资源管理器窗口连接到源代码管理
-//   3. 使用输出窗口查看生成输出和其他消息
-//   4. 使用错误列表窗口查看错误
-//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
-//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
