@@ -115,14 +115,13 @@ void CloseCentrality(Dijkstra d) {
 }
 
 int main() {
-	ifstream in("1e4.in");
 	Dijkstra d;
 	int i, n, m;
-	in >> n >> m; //图一共有n个点，m条边
+	cin >> n >> m; //图一共有n个点，m条边
 	d.init(n); //初始化
 	FOR(i, 1, m) {
 		int a, b;
-		in >> a >> b;
+		cin >> a >> b;
 		d.addEdge(a, b, 1); //添加边
 	}
 	CloseCentrality(d);

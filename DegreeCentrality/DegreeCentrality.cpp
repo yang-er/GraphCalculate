@@ -89,16 +89,12 @@ int main()
 	duCenter();
 	cout << "MAX_DU:" << du[MAX_POINT] << "POINT:" << MAX_POINT << endl;
 	int chose;
-	while (true)
+	cout << "1-加边";
+	while (cin >> chose)
 	{
+		if (chose) addEdge();
+		else break;
 		cout << "1-加边";
-		cin >> chose;
-		switch (chose)
-		{
-		case 1: addEdge(); break;
-		default:break;
-			break;
-		}
 	}
 	return 0;
 }
