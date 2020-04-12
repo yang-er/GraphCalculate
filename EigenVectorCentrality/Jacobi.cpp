@@ -20,17 +20,42 @@ bool JacbiCor(double* pMatrix, int nDim, double* pdblVect, double* pdbEigenValue
 		int nRow = 0;
 		int nCol = 1;
 
-		for (int i = 0; i < nDim; i++)			//行
+		#pragma omp parallel
 		{
-			for (int j = 0; j < nDim; j++)		//列
-			{
-				double d = fabs(pMatrix[i * nDim + j]);
+			double _dbMax = pMatrix[1];
+			int _nRow = 0;
+			int _nCol = -1;
 
-				if ((i != j) && (d > dbMax))
+			#pragma omp for
+			for (int i = 0; i < nDim; i++)			//行
+			{
+				for (int j = 0; j < nDim; j++)		//列
 				{
-					dbMax = d;
-					nRow = i;
-					nCol = j;
+					if (i == j) continue;
+
+					double d = fabs(pMatrix[i * nDim + j]);
+
+					if (_nCol == -1 || d > _dbMax)
+					{
+						_dbMax = d;
+						_nRow = i;
+						_nCol = j;
+					}
+				}
+			}
+
+			#pragma omp critical
+			{
+				if (_dbMax > dbMax)
+				{
+					dbMax = _dbMax;
+					nRow = _nRow;
+					nCol = _nCol;
+				}
+				else if (_dbMax == dbMax && _nRow < nRow)
+				{
+					nRow = _nRow;
+					nCol = _nCol;
 				}
 			}
 		}
@@ -70,9 +95,9 @@ bool JacbiCor(double* pMatrix, int nDim, double* pdblVect, double* pdbEigenValue
 		pMatrix[nRow * nDim + nCol] = 0.5 * (dbAqq - dbApp) * dbSin2Theta + dbApq * dbCos2Theta;
 		pMatrix[nCol * nDim + nRow] = pMatrix[nRow * nDim + nCol];
 
-		//#pragma omp parallel sections shared(nDim, nCol, nRow, dbSinTheta, dbCosTheta) num_threads(3)
+		#pragma omp parallel sections
 		{
-			//#pragma omp section
+			#pragma omp section
 			for (int i = 0; i < nDim; i++)
 			{
 				if ((i != nCol) && (i != nRow))
@@ -80,12 +105,13 @@ bool JacbiCor(double* pMatrix, int nDim, double* pdblVect, double* pdbEigenValue
 					int u = i * nDim + nRow;	//p  
 					int w = i * nDim + nCol;	//q
 					double dbMax = pMatrix[u];
-					pMatrix[u] = pMatrix[w] * dbSinTheta + dbMax * dbCosTheta;
-					pMatrix[w] = pMatrix[w] * dbCosTheta - dbMax * dbSinTheta;
+					double dbMin = pMatrix[w];
+					pMatrix[u] = dbMin * dbSinTheta + dbMax * dbCosTheta;
+					pMatrix[w] = dbMin * dbCosTheta - dbMax * dbSinTheta;
 				}
 			}
 
-			//#pragma omp section
+			#pragma omp section
 			for (int j = 0; j < nDim; j++)
 			{
 				if ((j != nCol) && (j != nRow))
@@ -93,20 +119,22 @@ bool JacbiCor(double* pMatrix, int nDim, double* pdblVect, double* pdbEigenValue
 					int u = nRow * nDim + j;	//p
 					int w = nCol * nDim + j;	//q
 					double dbMax = pMatrix[u];
-					pMatrix[u] = pMatrix[w] * dbSinTheta + dbMax * dbCosTheta;
-					pMatrix[w] = pMatrix[w] * dbCosTheta - dbMax * dbSinTheta;
+					double dbMin = pMatrix[w];
+					pMatrix[u] = dbMin * dbSinTheta + dbMax * dbCosTheta;
+					pMatrix[w] = dbMin * dbCosTheta - dbMax * dbSinTheta;
 				}
 			}
 
 			//计算特征向量
-			//#pragma omp section
+			#pragma omp section
 			for (int i = 0; i < nDim; i++)
 			{
 				int u = i * nDim + nRow;		//p   
 				int w = i * nDim + nCol;		//q
 				double dbMax = pdblVects[u];
-				pdblVects[u] = pdblVects[w] * dbSinTheta + dbMax * dbCosTheta;
-				pdblVects[w] = pdblVects[w] * dbCosTheta - dbMax * dbSinTheta;
+				double dbMin = pdblVects[w];
+				pdblVects[u] = dbMin * dbSinTheta + dbMax * dbCosTheta;
+				pdblVects[w] = dbMin * dbCosTheta - dbMax * dbSinTheta;
 			}
 		}
 	}
